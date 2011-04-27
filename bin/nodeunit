@@ -15,7 +15,8 @@ var testrunner,
     config_param_found = false,
     output_param_found = false,
     reporter_file = 'default',
-    reporter_param_found = false;
+    reporter_param_found = false,
+    includes = [];
 
 var usage = "Usage: nodeunit [options] testmodule1.js testfolder [...] \n" +
             "Options:\n\n" +
@@ -46,6 +47,8 @@ args.forEach(function (arg) {
     } else if (output_param_found) {
         options.output = arg;
         output_param_found = false;
+    } else if (arg.slice(0, 10) === "--include=") {
+        includes.push(arg.slice(10));
     } else if (arg.slice(0, 11) === "--reporter=") {
         reporter_file = arg.slice(11);
     } else if (arg === '--reporter') {
@@ -105,4 +108,9 @@ if (reporter_file in builtin_reporters) {
 else {
     testrunner = require(reporter_file);
 }
+
+includes.forEach(function (include) {
+    require.paths.unshift(include);
+});
+
 testrunner.run(files, options);
